@@ -1,0 +1,30 @@
+name: ci
+on:
+  pull_request:
+    branches:
+      - master
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup JDK
+        uses: actions/setup-java@v2
+        with:
+          distribution: temurin
+          java-version: 11
+      - name: Cache sbt
+        uses: coursier/cache-action@v6
+      - name: Build and Test
+        shell: bash
+        run: sbt coverage test
+      - name: Coverage Report
+          run: sbt coverageReport
+      - name: Upload coverage to Codecov
+          uses: codecov/codecov-action@v2
+          with:
+            fail_ci_if_error: true
