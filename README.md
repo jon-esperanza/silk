@@ -1,5 +1,5 @@
 <p align="center">
-    <a href="https://trino.io/"><img alt="Trino Logo" src=".github/silk-logo.png" /></a>
+    <a href=""><img alt="Silk Logo" src=".github/silk-logo.png" /></a>
 </p>
 <p align="center">
     <b>Silk is an adaptive distributed stream processing engine.</b>
