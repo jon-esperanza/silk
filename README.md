@@ -37,10 +37,10 @@ Silk makes it easy to model stream data, schedule multiple jobs, and scale self-
   - [ ] Easy Kafka Setup
   - [ ] Research how jobs can be user-defined and used by engine
 - [ ] Distributed System
-    - [ ] MapReduce-esque distribution of stream processing jobs
-    - [ ] Master Distribution Center (MDC) scheduling node
-    - [ ] Worker nodes
-    - [ ] Fault-tolerant state store pattern & process
+  - [ ] MapReduce-esque distribution of stream processing jobs
+  - [ ] Master Distribution Center (MDC) scheduling node
+  - [ ] Worker nodes
+  - [ ] Fault-tolerant state store pattern & process
 - [ ] Monitoring and data collection
   - [ ] Efficient and relevant monitoring
   - [ ] Collect useful data
