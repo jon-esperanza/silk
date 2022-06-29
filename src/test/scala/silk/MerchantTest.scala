@@ -2,13 +2,26 @@ package jesperan.silk
 
 import nodes.{Merchant, Worker}
 
-import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import jesperan.silk.jobs.Job
 import org.scalatest.wordspec.AnyWordSpecLike
 import jesperan.silk.jobs.ExecutionSummary
+import akka.testkit.TestKit
+import akka.actor.ActorSystem
+import akka.testkit.TestProbe
+import akka.actor.Props
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.matchers.should.Matchers
 
-class MerchantTest extends ScalaTestWithActorTestKit with AnyWordSpecLike {
+class MerchantTest extends TestKit(ActorSystem("test-merchant"))
+    with AnyWordSpecLike 
+    with BeforeAndAfterAll 
+    with Matchers {
   import Merchant._
+
+
+  override def afterAll(): Unit = {
+    TestKit.shutdownActorSystem(system)
+  }
 
   "Merchant actor" must {
     "execute multiple jobs using workers and return execution summary" in {
@@ -22,12 +35,12 @@ class MerchantTest extends ScalaTestWithActorTestKit with AnyWordSpecLike {
         Thread.sleep(20)
       }
       val jobs: List[Job] = List(new Job("organizeOrders", organize), new Job("formatOrders", format), new Job("sendOrders", send))
-      val probe = createTestProbe[SendExecutionSummary]()
-      val merchantActor = spawn(Merchant("orders", "merchant", probe.ref, jobs))
+      val probe = TestProbe()
+      val merchantActor = system.actorOf(Props(new Merchant("orders", "merchant", probe.ref, jobs)))
       var duration: Double = System.nanoTime()
       for (i <- 1 to 5) {
         merchantActor ! Merchant.ProcessMessage(20 + i, List("34", "78", "2", "90", "44"))
-        val response = probe.receiveMessage()
+        val response: SendExecutionSummary = probe.expectMsgType[SendExecutionSummary]
         response.requestId should === (20 + i)
       }
     }
