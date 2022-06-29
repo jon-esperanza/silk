@@ -8,6 +8,7 @@ lazy val root = (project in file("."))
     name := "silk",
     idePackagePrefix := Some("jesperan.silk"),
     libraryDependencies += "org.seleniumhq.selenium" % "selenium-java"            % "4.2.1",
+    libraryDependencies += "ch.qos.logback" % "logback-classic" % "1.2.11",
     libraryDependencies += "com.typesafe.akka" %% "akka-actor-typed" % "2.6.19",
     libraryDependencies += "com.pirum" %% "scala-kafka-client-akka" % "2.5.0",
     libraryDependencies += "org.scala-lang.modules" %% "scala-async" % "1.0.1",
