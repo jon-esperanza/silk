@@ -5,7 +5,6 @@ import jobs.{ExecutionSummary, Job}
 import akka.actor.ActorLogging
 import akka.actor.Actor
 import akka.actor.ActorRef
-import akka.event.Logging
 import akka.actor.Props
 
 /*
@@ -28,7 +27,7 @@ import akka.actor.Props
     - On a adaptData in mem MISS -> request adaptData from AdaptiveAnalyst
  */
 
-object Merchant {
+object MerchantNode {
   sealed trait Command
   // TODO: object model message
   final case class ProcessMessage(requestId: Long, message: List[String]) extends Command
@@ -38,9 +37,9 @@ object Merchant {
   final case class StoreAdaptData(requestId: Long, adaptData: String) extends Command
 }
 
-class Merchant(topic: String, merchantId: String, adaptiveAnalyst: ActorRef, jobs: List[Job]) 
+class MerchantNode(topic: String, merchantId: String, adaptiveAnalyst: ActorRef, jobs: List[Job])
   extends Actor with ActorLogging {
-  import Merchant._
+  import MerchantNode._
 
   var executions: Map[Long, ExecutionSummary] = Map().empty
   var duration: Double = 0
@@ -59,8 +58,8 @@ class Merchant(topic: String, merchantId: String, adaptiveAnalyst: ActorRef, job
     waitingLists += (id -> jobs)
     executions += (id -> new ExecutionSummary(Map().empty, System.nanoTime()))
     jobs.zipWithIndex.foreach({ case (job, i) =>
-      val workerActor = context.actorOf(Props(new Worker("group-" + id, "worker-" + i, self)), id + "-worker-" + i)
-      workerActor ! Worker.ExecuteJob(id, message, job)
+      val workerActor = context.actorOf(Props(new WorkerNode("group-" + id, "worker-" + i, self)), id + "-worker-" + i)
+      workerActor ! WorkerNode.ExecuteJob(id, message, job)
     })
   }
 

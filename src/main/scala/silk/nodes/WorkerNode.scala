@@ -16,13 +16,13 @@ import akka.actor.Actor
       sends execution data collected back to Merchant before terminating
  */
 
-object Worker {
+object WorkerNode {
   final case class ExecuteJob(requestId: Long, data: List[String], job: Job)
 }
 
-class Worker(groupId: String, workerId: String, merchant: ActorRef)
+class WorkerNode(groupId: String, workerId: String, merchant: ActorRef)
   extends Actor with ActorLogging {
-  import Worker._
+  import WorkerNode._
 
   override def preStart(): Unit = {
     log.info("Worker actor {}-{} started", groupId, workerId)
@@ -33,7 +33,7 @@ class Worker(groupId: String, workerId: String, merchant: ActorRef)
         var totalTime: Double = System.nanoTime()
         job.execute(data)
         totalTime = BigDecimal((System.nanoTime - totalTime) / 1e6).setScale(5, BigDecimal.RoundingMode.HALF_UP).toDouble
-        merchant ! Merchant.JobExecutionData(id, job.name, totalTime)
+        merchant ! MerchantNode.JobExecutionData(id, job.name, totalTime)
         
   }
 

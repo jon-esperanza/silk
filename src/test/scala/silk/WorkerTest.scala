@@ -1,9 +1,9 @@
 package jesperan.silk
 
-import jesperan.silk.jobs.Job
-import jesperan.silk.nodes.Worker
+import jobs.Job
+import nodes.WorkerNode
 import org.scalatest.wordspec.AnyWordSpecLike
-import jesperan.silk.nodes.Merchant
+import nodes.MerchantNode
 import akka.testkit.TestKit
 import akka.actor.ActorSystem
 import akka.testkit.TestProbe
@@ -15,7 +15,7 @@ class WorkerTest extends TestKit(ActorSystem("test-worker"))
     with AnyWordSpecLike 
     with BeforeAndAfterAll 
     with Matchers {
-  import Worker._
+  import WorkerNode._
 
   override def afterAll(): Unit = {
     TestKit.shutdownActorSystem(system)
@@ -28,10 +28,10 @@ class WorkerTest extends TestKit(ActorSystem("test-worker"))
       }
       val probe = TestProbe()
       val job = new Job("organizeOrders", organize)
-      val workerActor = system.actorOf(Props(new Worker("group-1", "worker-1", probe.ref)))
+      val workerActor = system.actorOf(Props(new WorkerNode("group-1", "worker-1", probe.ref)))
       probe.watch(workerActor)
-      workerActor ! Worker.ExecuteJob(41, List("34", "78", "2", "90", "44"), job)
-      val response: Merchant.JobExecutionData = probe.expectMsgType[Merchant.JobExecutionData]
+      workerActor ! WorkerNode.ExecuteJob(41, List("34", "78", "2", "90", "44"), job)
+      val response: MerchantNode.JobExecutionData = probe.expectMsgType[MerchantNode.JobExecutionData]
       response.requestId should === (41)
       response.name should === (job.name)
     }
