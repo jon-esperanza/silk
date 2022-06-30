@@ -28,18 +28,19 @@ Silk makes it easy to model stream data, schedule multiple jobs, and scale self-
 
 ### Built With
 * [Scala](https://www.scala-lang.org/)
+* [Akka](https://akka.io/)
 
 ## Roadmap
-- [ ] Set up repo
+- [x] Set up repo
 - [ ] Kafka integration with data modeling
-  - [ ] Merchant & Job Objects
+  - [x] Merchant & Worker Actors
   - [ ] Centralized Single Instance
   - [ ] Easy Kafka Setup
-  - [ ] Research how jobs can be user-defined and used by engine
+  - [x] Research how jobs can be user-defined and used by engine
 - [ ] Distributed System
   - [ ] MapReduce-esque distribution of stream processing jobs
-  - [ ] Master Distribution Center (MDC) scheduling node
-  - [ ] Worker nodes
+  - [x] Master Distribution Center (MDC) scheduling node
+  - [x] Worker nodes
   - [ ] Fault-tolerant state store pattern & process
 - [ ] Monitoring and data collection
   - [ ] Efficient and relevant monitoring
