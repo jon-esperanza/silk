@@ -6,14 +6,12 @@ import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.OffsetResetStrategy
 import org.apache.kafka.common.requests.IsolationLevel
 import com.pirum.kafka.akka.KafkaConsumerActor
-
 import scala.concurrent.duration._
 import mdc.Distributor
-
 import akka.actor.ActorSystem
 import akka.actor.Props
 import jobs.Job
-import silk.interface.Merchant
+import models.Merchant
 
 object Main extends App {
   val jaasTemplate = "org.apache.kafka.common.security.scram.ScramLoginModule required username=\"%s\" password=\"%s\";"
