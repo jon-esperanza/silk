@@ -11,9 +11,8 @@ import com.pirum.kafka.akka.Extractor
 import akka.actor.ActorRef
 import akka.actor.Props
 import nodes.MerchantNode
-
-import silk.interface.Merchant
-
+import models.Merchant
+import org.apache.kafka.clients.consumer.ConsumerRecord
 import java.util.concurrent.atomic.AtomicLong
 
 /* 
@@ -43,47 +42,50 @@ trait KafkaConfig {
 trait DeltaConsumer extends KafkaConfig {
   this: Actor =>
 
-  val adaptiveAnalyst = context.actorOf(Props(new AdaptiveAnalyst()))
+  val adaptiveAnalyst: ActorRef = context.actorOf(Props(new AdaptiveAnalyst()))
 
   //for pattern matching in our receive method
   val msgExtractor: Extractor[Any, ConsumerRecords[String, String]] = ConsumerRecords.extractor[String, String]
-  val kafkaConsumerActor = context.actorOf(
+  val kafkaConsumerActor: ActorRef = context.actorOf(
     KafkaConsumerActor.props(kafkaConfig, actorConfig, self),
     "DeltaKafkaConsumer"
   )
-  def subscribe(topics: List[String]) =
-     kafkaConsumerActor ! KafkaConsumerActor.Subscribe.AutoPartition(topics)
+  def subscribe(topics: List[String]): Unit =
+    kafkaConsumerActor ! KafkaConsumerActor.Subscribe.AutoPartition(topics)
 }
 
 object Distributor {
   sealed trait Command
 }
 
-class Distributor(val kafkaConfig: KafkaConsumer.Conf[String, String], val actorConfig: KafkaConsumerActor.Conf, blueprint: List[Merchant]) extends Actor with ActorLogging with DeltaConsumer {
-	import Distributor._
+class Distributor(val kafkaConfig: KafkaConsumer.Conf[String, String], val actorConfig: KafkaConsumerActor.Conf, blueprint: List[Merchant])
+  extends Actor with ActorLogging with DeltaConsumer {
+
+  import Distributor._
 
   var yellowbook: Map[String, ActorRef] = Map().empty
   var requestCount = new AtomicLong()
 
-	override def preStart(): Unit = {
+  override def preStart(): Unit = {
     super.preStart()
     log.info("Distributor actor started")
     initMerchantNodes()
     subscribe(yellowbook.keys.toList)
-	}
+  }
 
-	def receive: Receive = {
-	// Records from Kafka
+  def receive: Receive = {
+    // Records from Kafka
     case msgExtractor(records) =>
-      processRecords(records.pairs)
+      processRecords(records.recordsList)
       sender() ! KafkaConsumerActor.Confirm(records.offsets, commit = true)
   }
 
-  private def processRecords(records: Seq[(Option[String], String)]): Unit =
-    records.foreach { case (key, value) =>
-      log.info(s"Received [$key, $value]") // TODO: pull topic from records to distribute to merchants
-      yellowbook.getOrElse("ndehlmr6-test", null) ! MerchantNode.ProcessMessage(requestCount.incrementAndGet(), List(value))
+  private def processRecords(records: List[ConsumerRecord[String, String]]): Unit = {
+    records.foreach { record =>
+      log.info(s"Received [${record.key()}, ${record.value()}] from [${record.topic()}]")
+      yellowbook.getOrElse(record.topic(), null) ! MerchantNode.ProcessMessage(requestCount.incrementAndGet(), List(record.value()))
     }
+  }
 
   private def initMerchantNodes(): Unit = {
     blueprint.foreach(merchant => {
