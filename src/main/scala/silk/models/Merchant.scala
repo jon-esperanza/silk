@@ -1,6 +1,7 @@
-package silk.interface
+package jesperan.silk
+package models
 
-import jesperan.silk.jobs.Job
+import jobs.Job
 
 class Merchant(var topic: String, var jobs: List[Job]) {
 

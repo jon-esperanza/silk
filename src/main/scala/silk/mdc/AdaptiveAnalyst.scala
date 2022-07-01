@@ -17,6 +17,6 @@ class AdaptiveAnalyst extends Actor with ActorLogging {
 	}
 
     def receive: Receive = {
-        case (msg) => log.info("Adaptive Analyst received: " + msg)
+        case (msg) => log.info("Adaptive Analyst received: " + msg.toString)
     }
 }
