@@ -22,6 +22,7 @@ object WorkerNode {
 
 class WorkerNode(groupId: String, workerId: String, merchant: ActorRef)
   extends Actor with ActorLogging {
+
   import WorkerNode._
 
   override def preStart(): Unit = {
@@ -29,12 +30,12 @@ class WorkerNode(groupId: String, workerId: String, merchant: ActorRef)
   }
 
   override def receive: Receive = {
-      case ExecuteJob(id, data, job) =>
-        var totalTime: Double = System.nanoTime()
-        job.execute(data)
-        totalTime = BigDecimal((System.nanoTime - totalTime) / 1e6).setScale(5, BigDecimal.RoundingMode.HALF_UP).toDouble
-        merchant ! MerchantNode.JobExecutionData(id, job.name, totalTime)
-        
+    case ExecuteJob(id, data, job) =>
+      var totalTime: Double = System.nanoTime()
+      job.execute(data)
+      totalTime = BigDecimal((System.nanoTime - totalTime) / 1e6).setScale(5, BigDecimal.RoundingMode.HALF_UP).toDouble
+      merchant ! MerchantNode.JobExecutionData(id, job.name, totalTime)
+
   }
 
   override def postStop(): Unit = {
