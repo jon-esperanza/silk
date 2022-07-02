@@ -74,7 +74,6 @@ class Distributor(val kafkaConfig: KafkaConsumer.Conf[String, String], val actor
   }
 
   def receive: Receive = {
-    // Records from Kafka
     case msgExtractor(records) =>
       processRecords(records.recordsList)
       sender() ! KafkaConsumerActor.Confirm(records.offsets, commit = true)
@@ -83,7 +82,10 @@ class Distributor(val kafkaConfig: KafkaConsumer.Conf[String, String], val actor
   private def processRecords(records: List[ConsumerRecord[String, String]]): Unit = {
     records.foreach { record =>
       log.info(s"Received [${record.key()}, ${record.value()}] from [${record.topic()}]")
-      yellowbook.getOrElse(record.topic(), null) ! MerchantNode.ProcessMessage(requestCount.incrementAndGet(), List(record.value()))
+      yellowbook.get(record.topic()) match {
+        case None => log.error(s"MerchantNotFoundError: There is no merchant available for the topic '${record.topic()}'.")
+        case Some(merchant) => merchant ! MerchantNode.ProcessMessage(requestCount.incrementAndGet(), List(record.value()))
+      }
     }
   }
 
