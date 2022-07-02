@@ -29,6 +29,7 @@ import akka.actor.Props
 
 object MerchantNode {
   sealed trait Command
+
   // TODO: object model message
   final case class ProcessMessage(requestId: Long, message: List[String]) extends Command
   final case class SendExecutionSummary(requestId: Long, summary: ExecutionSummary)
@@ -39,6 +40,7 @@ object MerchantNode {
 
 class MerchantNode(topic: String, merchantId: String, adaptiveAnalyst: ActorRef, jobs: List[Job])
   extends Actor with ActorLogging {
+
   import MerchantNode._
 
   var executions: Map[Long, ExecutionSummary] = Map().empty
@@ -47,11 +49,11 @@ class MerchantNode(topic: String, merchantId: String, adaptiveAnalyst: ActorRef,
   log.info("Merchant actor {}-{} started", topic, merchantId)
 
   override def receive: Receive = {
-      case ProcessMessage(id, message) => processMessage(id, message)
+    case ProcessMessage(id, message) => processMessage(id, message)
 
-      case StoreAdaptData(id, adaptData) => this // TODO: Handle requesting adapt data from analyst
+    case StoreAdaptData(id, adaptData) => this // TODO: Handle requesting adapt data from analyst
 
-      case JobExecutionData(id, name, data) => handleWorkerResponse(id, name, data)
+    case JobExecutionData(id, name, data) => handleWorkerResponse(id, name, data)
   }
 
   private def processMessage(id: Long, message: List[String]): Unit = {
